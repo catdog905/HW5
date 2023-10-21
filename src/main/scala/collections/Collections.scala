@@ -10,16 +10,16 @@ object Collections {
     Some(Seq((2, 8))) for Seq(1, 2, 8)
     Some(Seq((3, 5), (5, 7))) for Seq(3, 5, 7)
    */
-  def findGaps(l: Seq[Int]): Option[Seq[(Int, Int)]] = {
+  def findGaps(l: List[Int]): Option[List[(Int, Int)]] = {
     @tailrec
-    def findGapsTail(l: Seq[Int], acc: Seq[(Int, Int)]): Seq[(Int, Int)] = l match {
+    def findGapsTail(l: List[Int], acc: List[(Int, Int)]): List[(Int, Int)] = l match {
       case Nil                            => acc
       case _ :: Nil                       => acc
       case x1 :: x2 :: xs if x2 != x1 + 1 => findGapsTail(x2 :: xs, acc :+ (x1, x2))
-      case x1 :: x2 :: xs                 => findGapsTail(x2 :: xs, acc)
+      case _ :: x2 :: xs                  => findGapsTail(x2 :: xs, acc)
     }
 
-    val result = findGapsTail(l, Seq())
+    val result = findGapsTail(l, List())
     if (result.isEmpty)
       None
     else
@@ -82,7 +82,7 @@ object Collections {
         case (Some(head), None) => consistentOccurrences(lst.tail, (head, 1) :: Nil)
         case (Some(head), Some((accHead, count))) if head == accHead =>
           consistentOccurrences(lst.tail, (accHead, count + 1) :: acc.tail)
-        case (Some(head), Some((accHead, _))) =>
+        case (Some(head), Some((_, _))) =>
           consistentOccurrences(lst.tail, (head, 1) :: acc)
       }
 

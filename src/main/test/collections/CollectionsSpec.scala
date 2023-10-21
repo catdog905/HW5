@@ -5,9 +5,9 @@ import org.scalatest.matchers.should.Matchers
 
 class CollectionsSpec extends AnyFlatSpec with Matchers {
   "findGaps" should "find all gaps that have gaps between them or return None" in {
-    Collections.findGaps(Seq(1, 2, 3, 4)) shouldEqual None
-    Collections.findGaps(Seq(1, 2, 8)) shouldEqual Some(Seq((2, 8)))
-    Collections.findGaps(Seq(3, 5, 7)) shouldEqual Some(Seq((3, 5), (5, 7)))
+    Collections.findGaps(List(1, 2, 3, 4)) shouldEqual None
+    Collections.findGaps(List(1, 2, 8)) shouldEqual Some(Seq((2, 8)))
+    Collections.findGaps(List(3, 5, 7)) shouldEqual Some(Seq((3, 5), (5, 7)))
   }
 
   "minFold" should "return key-value pair with the minimum value in the map or return None" in {

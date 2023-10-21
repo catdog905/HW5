@@ -1,7 +1,6 @@
 package tree
 
 import scala.annotation.tailrec
-import scala.collection.immutable.Queue
 import scala.collection.mutable
 
 case class Node[+T](value: T, left: Tree[T], right: Tree[T])
@@ -66,7 +65,7 @@ case class BinaryTree[T](root: Node[T]) extends Tree[T] {
             curLayer
               .grouped(2)
               .zip(layers.head)
-              .map({ case (left :: right :: Nil, Node(value, _, _)) =>
+              .collect({ case (left :: right :: Nil, Node(value, _, _)) =>
                 Node(value, left, right)
               })
               .toList,
@@ -87,21 +86,21 @@ case class BinaryTree[T](root: Node[T]) extends Tree[T] {
           nodes,
           ifNoneExist,
           {
-            case Node(nodeValue, EmptyTree, right)     => Node(nodeValue, Tree(value), right)
-            case Node(nodeValue, left, EmptyTree)      => Node(nodeValue, left, Tree(value))
-            case Node(nodeValue, EmptyTree, EmptyTree) => Node(nodeValue, Tree(value), EmptyTree)
-            case node                                  => node
+            case Node(nodeValue, EmptyTree, right) => Node(nodeValue, Tree(value), right)
+            case Node(nodeValue, left, EmptyTree)  => Node(nodeValue, left, Tree(value))
+            case node                              => node
           }
         )
         buildNewTree(lastChangedLayer :: layers)
       } else
         addRec(
           nodes.flatMap({
+            case Node(_, EmptyTree, EmptyTree)                      => List()
             case Node(_, EmptyTree, right: BinaryTree[T])           => List(right.root)
             case Node(_, left: BinaryTree[T], EmptyTree)            => List(left.root)
             case Node(_, left: BinaryTree[T], right: BinaryTree[T]) => List(left.root, right.root)
           }),
-          (nodes :: layers)
+          nodes :: layers
         )
     }
 
@@ -118,13 +117,13 @@ case class BinaryTree[T](root: Node[T]) extends Tree[T] {
         case None       => path
       }
 
-      val curNode = q.dequeue
+      val curNode = q.dequeue()
       val Node(curValue, curLeft, curRight) = curNode
       val newAncestors = (curLeft, curRight) match {
         case (node1: BinaryTree[T], node2: BinaryTree[T]) =>
           q.enqueue(node1.root)
           q.enqueue(node2.root)
-          ancestors + (node1.root -> curNode, node2.root -> curNode)
+          ancestors ++ Map(node1.root -> curNode, node2.root -> curNode)
         case (node: BinaryTree[T], _) =>
           q.enqueue(node.root)
           ancestors + (node.root -> curNode)
@@ -140,7 +139,7 @@ case class BinaryTree[T](root: Node[T]) extends Tree[T] {
         (curValue, buildBackPath(List(), Some(curNode)))
     }
 
-    val (deepestValue: T, pathToDeepsetNode) = getDeepestValue(mutable.Queue[Node[T]](root), Map())
+    val (deepestValue, pathToDeepsetNode) = getDeepestValue(mutable.Queue[Node[T]](root), Map())
 
     def replaceWithDeepest(rootNode: Node[T]): (BinaryTree[T], Boolean) = {
       val Node(nodeValue, left, right) = rootNode
@@ -169,10 +168,12 @@ case class BinaryTree[T](root: Node[T]) extends Tree[T] {
           case (headNode, BinaryTree(left), right) if left == headNode =>
             removeDeepestValue(left, pathWithoutHead.tail) match {
               case Right(nextBranch) => Right(Tree(Node(curNode.value, nextBranch, right)))
+              case Left(error)       => Left(error)
             }
           case (headNode, left, BinaryTree(right)) if right == headNode =>
             removeDeepestValue(right, pathWithoutHead.tail) match {
               case Right(nextBranch) => Right(Tree(Node(curNode.value, left, nextBranch)))
+              case Left(error)       => Left(error)
             }
           case _ => Left(InternalError)
         }
@@ -251,7 +252,6 @@ case class BinaryTree[T](root: Node[T]) extends Tree[T] {
 
 case object Tree {
   def apply[T](root: Node[T]): BinaryTree[T] = BinaryTree(root)
-  Set
 
   def apply[T](value: T): BinaryTree[T] = BinaryTree(Node(value))
 }

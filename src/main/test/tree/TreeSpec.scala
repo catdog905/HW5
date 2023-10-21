@@ -4,11 +4,11 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
 class TreeSpec extends AnyFlatSpec with Matchers {
-  val simpleTree = BinaryTree(
+  val simpleTree: BinaryTree[Int] = BinaryTree(
     Node(1, BinaryTree(Node(2, EmptyTree, EmptyTree)), BinaryTree(Node(3, EmptyTree, EmptyTree)))
   )
 
-  val complexTree = BinaryTree(
+  val complexTree: BinaryTree[Int] = BinaryTree(
     Node(
       1,
       BinaryTree(Node(2, BinaryTree(Node(4, EmptyTree, EmptyTree)), BinaryTree(Node(5, EmptyTree, EmptyTree)))),

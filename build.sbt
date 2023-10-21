@@ -18,5 +18,7 @@ Compile / compile / scalacOptions ++= Seq(
 
 lazy val root = (project in file("."))
   .settings(
-    name := "tree",
+    name := "hw5",
+    libraryDependencies += scalaTest
   )
+
